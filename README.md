@@ -37,8 +37,11 @@ Usage
 Note: depending on the speed of your USB drive, the backup stage may take a
 long time. Expect it to take 30-60 minutes to complete. Once it has been
 completed, you can rerun the patching process without going through backup
-again if necessary. Please safekeep the backup files: `dgtyp3zzzz.tar.gz`,
-`dgtyp3zzzz.tar.gz.md5`, and `installed.md5`.
+again if necessary. 
+
+Please safekeep the backup files inside `backup` folder: `dgtyp3zzzz.tar.gz`,
+`dgtyp3zzzz.tar.gz.md5`, `installed.md5` and `cddata` folder (it contains your original DAT files)
+
 
 Uninstallation
 --------------

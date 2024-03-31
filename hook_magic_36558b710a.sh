@@ -29,11 +29,14 @@ if [ -f "${USB_ROOT}/backup_required" ]; then
 
     # Tar up the game
     cd /root
-    if ! tar -c dgf Data/ | gzip -c > "${USB_ROOT}/dgtyp3zzzz.tar.gz"; then
+
+    mkdir -p "${USB_ROOT}/backup/"
+
+    if ! tar -c dgf Data/ | gzip -c > "${USB_ROOT}/backup/dgtyp3zzzz.tar.gz"; then
         error_exit
     fi
     # Generate MD5 sum of the tarball
-    cd "${USB_ROOT}"
+    cd "${USB_ROOT}/backup"
     md5sum dgtyp3zzzz.tar.gz > dgtyp3zzzz.tar.gz.md5
 
     # Generate MD5 sum of the installed files (per factory install script)
