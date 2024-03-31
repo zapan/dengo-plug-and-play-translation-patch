@@ -36,7 +36,6 @@ if [ -f "${USB_ROOT}/backup_required" ]; then
     cd "${USB_ROOT}"
     md5sum dgtyp3zzzz.tar.gz > dgtyp3zzzz.tar.gz.md5
 
-
     # Generate MD5 sum of the installed files (per factory install script)
     echo `(find /root/Data/ /root/dgf -type f -exec md5sum {} \;) | awk '{print $1}' | env LC_ALL=C sort | md5sum` > installed.md5
     # Remove backup flag if successful
