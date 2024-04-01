@@ -46,5 +46,4 @@ Please safekeep the backup files inside `backup` folder: `dgtyp3zzzz.tar.gz`,
 Uninstallation
 --------------
 Place a blank file named `revert_translation` on to the USB drive and repeat steps 3-5 to
-revert the patch. Please do this if you need to reapply an updated version of
-the patch.
+revert the patch.
