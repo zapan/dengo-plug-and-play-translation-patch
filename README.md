@@ -10,9 +10,7 @@ will also need a USB flash drive and a powered USB OTG hub. Please have at
 least 2GB free on the USB flash drive for a backup.
 
 The USB OTG hub I use can be found [here](https://www.amazon.ca/gp/product/B07BDJN76M).
-You can also use an angle adapter instead of a hub, but I find the quality
-inconsistent, meaning that sometimes it may not make contact properly and cause
-issues.
+You can also use an angle adapter instead of a hub. I've used [this](https://www.amazon.es/dp/B07VRYLJKR) one without problems. 
 
 Usage
 -----
