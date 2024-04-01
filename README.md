@@ -47,3 +47,10 @@ Uninstallation
 --------------
 Place a blank file named `revert_translation` on to the USB drive and repeat steps 3-5 to
 revert the patch.
+
+Translation Patch Credits
+--------------
+- Thanks to [DDGCrew](https://sites.google.com/view/ddgcrew/games/densha-de-go-final) team for their awesome translation to English.
+- DAT files have been ported from the [DDGCrew](https://sites.google.com/view/ddgcrew/games/densha-de-go-final) PC version to the Plug & Play version using the tools created by [GMMan](https://github.com/GMMan):
+  1. [Densha de Go! Final Modding Library](https://github.com/GMMan/libdgf) 
+  2. [Densha de Go! Final Texture Converter](https://github.com/GMMan/dgf-texture-convert)
