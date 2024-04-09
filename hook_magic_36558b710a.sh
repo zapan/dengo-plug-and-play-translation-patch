@@ -23,24 +23,33 @@ echo 1 > /sys/class/leds/led2/brightness
 
 # Check if we need to create a backup
 if [ -f "${USB_ROOT}/backup_required" ]; then
-    # We're actually going to create a full factory install package that if you
-    # decided to delete the game entirely for some reason, you can just add the
-    # factory install flag to the drive and plug it in to reinstall.
 
-    # Tar up the game
-    cd /root
+    if [ -f "/root/Data/cddata/common/com_mem.orig" ]; then
+    	echo "Full backup already done"
+    else
+    	echo "Running full backup..."
 
-    mkdir -p "${USB_ROOT}/backup/"
+      # We're actually going to create a full factory install package that if you
+      # decided to delete the game entirely for some reason, you can just add the
+      # factory install flag to the drive and plug it in to reinstall.
 
-    if ! tar -c dgf Data/ | gzip -c > "${USB_ROOT}/backup/dgtyp3zzzz.tar.gz"; then
-        error_exit
+      # Tar up the game
+      cd /root
+
+      mkdir -p "${USB_ROOT}/backup/"
+
+      if ! tar -c dgf Data/ | gzip -c > "${USB_ROOT}/backup/dgtyp3zzzz.tar.gz"; then
+          error_exit
+      fi
+      # Generate MD5 sum of the tarball
+      cd "${USB_ROOT}/backup"
+      md5sum dgtyp3zzzz.tar.gz > dgtyp3zzzz.tar.gz.md5
+
+      # Generate MD5 sum of the installed files (per factory install script)
+      echo `(find /root/Data/ /root/dgf -type f -exec md5sum {} \;) | awk '{print $1}' | env LC_ALL=C sort | md5sum` > installed.md5
+
     fi
-    # Generate MD5 sum of the tarball
-    cd "${USB_ROOT}/backup"
-    md5sum dgtyp3zzzz.tar.gz > dgtyp3zzzz.tar.gz.md5
 
-    # Generate MD5 sum of the installed files (per factory install script)
-    echo `(find /root/Data/ /root/dgf -type f -exec md5sum {} \;) | awk '{print $1}' | env LC_ALL=C sort | md5sum` > installed.md5
     # Remove backup flag if successful
     rm "${USB_ROOT}/backup_required"
 fi
@@ -50,47 +59,53 @@ mount -o remount,rw /
 
 if [ -f "${USB_ROOT}/backup_translation" ]; then
 
-    echo "Translation files backup..."
+    if [ -f "/root/Data/cddata/common/com_mem.orig" ]; then
+      echo "Translation backup already done"
+    else
 
-    cd /root/Data/cddata
+      echo "Translation files backup..."
 
-    mkdir -p "${USB_ROOT}/backup/cddata/2d"
-    mkdir -p "${USB_ROOT}/backup/cddata/common"
-    mkdir -p "${USB_ROOT}/backup/cddata/menu"
+      cd /root/Data/cddata
 
-    cp 2d/end_mem.dat       "${USB_ROOT}/backup/cddata/2d/"
-    cp 2d/game2d_mem.dat    "${USB_ROOT}/backup/cddata/2d/"
-    cp 2d/game2d_vram.dat   "${USB_ROOT}/backup/cddata/2d/"
-    cp common/com_mem.dat   "${USB_ROOT}/backup/cddata/common/"
-    cp menu/menu_mem_fj.dat "${USB_ROOT}/backup/cddata/menu/"
-    cp menu/menu_mem_us.dat "${USB_ROOT}/backup/cddata/menu/"
+      mkdir -p "${USB_ROOT}/backup/cddata/2d"
+      mkdir -p "${USB_ROOT}/backup/cddata/common"
+      mkdir -p "${USB_ROOT}/backup/cddata/menu"
 
-    cp 2d/end_mem.dat       2d/end_mem.orig
-    cp 2d/game2d_mem.dat    2d/game2d_mem.orig
-    cp 2d/game2d_vram.dat   2d/game2d_vram.orig
-    cp common/com_mem.dat   common/com_mem.orig
-    cp menu/menu_mem_fj.dat menu/menu_mem_fj.orig
-    cp menu/menu_mem_us.dat menu/menu_mem_us.orig
+      cp 2d/end_mem.dat       "${USB_ROOT}/backup/cddata/2d/"
+      cp 2d/game2d_mem.dat    "${USB_ROOT}/backup/cddata/2d/"
+      cp 2d/game2d_vram.dat   "${USB_ROOT}/backup/cddata/2d/"
+      cp common/com_mem.dat   "${USB_ROOT}/backup/cddata/common/"
+      cp menu/menu_mem_fj.dat "${USB_ROOT}/backup/cddata/menu/"
+      cp menu/menu_mem_us.dat "${USB_ROOT}/backup/cddata/menu/"
 
-    chmod 664 2d/end_mem.orig
-    chmod 664 2d/game2d_mem.orig
-    chmod 664 2d/game2d_vram.orig
-    chmod 664 common/com_mem.orig
-    chmod 664 menu/menu_mem_fj.orig
-    chmod 664 menu/menu_mem_us.orig
+      cp 2d/end_mem.dat       2d/end_mem.orig
+      cp 2d/game2d_mem.dat    2d/game2d_mem.orig
+      cp 2d/game2d_vram.dat   2d/game2d_vram.orig
+      cp common/com_mem.dat   common/com_mem.orig
+      cp menu/menu_mem_fj.dat menu/menu_mem_fj.orig
+      cp menu/menu_mem_us.dat menu/menu_mem_us.orig
 
-    chown 1000:1000 2d/end_mem.orig
-    chown 1000:1000 2d/game2d_mem.orig
-    chown 1000:1000 2d/game2d_vram.orig
-    chown 1000:1000 common/com_mem.orig
-    chown 1000:1000 menu/menu_mem_fj.orig
-    chown 1000:1000 menu/menu_mem_us.orig
+      chmod 664 2d/end_mem.orig
+      chmod 664 2d/game2d_mem.orig
+      chmod 664 2d/game2d_vram.orig
+      chmod 664 common/com_mem.orig
+      chmod 664 menu/menu_mem_fj.orig
+      chmod 664 menu/menu_mem_us.orig
+
+      chown 1000:1000 2d/end_mem.orig
+      chown 1000:1000 2d/game2d_mem.orig
+      chown 1000:1000 2d/game2d_vram.orig
+      chown 1000:1000 common/com_mem.orig
+      chown 1000:1000 menu/menu_mem_fj.orig
+      chown 1000:1000 menu/menu_mem_us.orig
+
+      echo "Translation files backup OK."
+    fi
+
+    echo ""
 
     # Remove backup flag if successful
     rm "${USB_ROOT}/backup_translation"
-
-    echo "Translation files backup OK."
-    echo ""
 fi
 
 
