@@ -90,6 +90,7 @@ if [ -f "${USB_ROOT}/backup_translation" ]; then
     rm "${USB_ROOT}/backup_translation"
 
     echo "Translation files backup OK."
+    echo ""
 fi
 
 
@@ -109,6 +110,7 @@ if [ -f "${USB_ROOT}/revert_translation" ]; then
     rm "${USB_ROOT}/revert_translation"
 
     echo "Translation files reverted OK."
+    echo ""
 
     poweroff
     exit
@@ -118,15 +120,6 @@ fi
 # Move files into place
 cd /root/Data/cddata
 
-
-df -h
-
-echo "Log original files permissions..."
-ls -al 2d/*.orig
-ls -al common/*.orig
-ls -al menu/*.orig
-
-
 echo "Copying files..."
 cp "${USB_ROOT}/translation/cddata/2d/end_mem.dat"        2d/end_mem.dat
 cp "${USB_ROOT}/translation/cddata/2d/game2d_mem.dat"     2d/game2d_mem.dat
@@ -134,7 +127,7 @@ cp "${USB_ROOT}/translation/cddata/2d/game2d_vram.dat"    2d/game2d_vram.dat
 cp "${USB_ROOT}/translation/cddata/common/com_mem.dat"    common/com_mem.dat
 cp "${USB_ROOT}/translation/cddata/menu/menu_mem_fj.dat"  menu/menu_mem_fj.dat
 cp "${USB_ROOT}/translation/cddata/menu/menu_mem_us.dat"  menu/menu_mem_us.dat
-
+echo ""
 
 echo "Changing files permissions..."
 chmod 664 2d/end_mem.dat
@@ -150,16 +143,11 @@ chown 1000:1000 2d/game2d_vram.dat
 chown 1000:1000 common/com_mem.dat
 chown 1000:1000 menu/menu_mem_fj.dat
 chown 1000:1000 menu/menu_mem_us.dat
-
-
-
-echo "New files permissions..."
-ls -al 2d/*.dat
-ls -al common/*.dat
-ls -al menu/*.dat
+echo ""
 
 # We're done, shutdown
 echo "We're done, shutdown"
+echo ""
 poweroff
 
-} > "${USB_ROOT}/log.txt" 2>&1
+} >> "${USB_ROOT}/log.txt" 2>&1
