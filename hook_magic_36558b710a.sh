@@ -133,9 +133,37 @@ fi
 
 
 # Move files into place
+echo "Copying ATX files..."
+
+cp "${USB_ROOT}/translation/OptionMenuEN.atx" /root/Data/OptionMenu.atx
+chmod 664 /root/Data/OptionMenu.atx
+ls -al /root/Data/OptionMenu.atx
+md5sum /root/Data/OptionMenu.atx
+
+echo ""
+ls -al /root/Data/OptionMenu.atx.orig
+md5sum /root/Data/OptionMenu.atx.orig
+echo ""
+
+
+ls -al /root/Data/TitleMenu.atx
+md5sum /root/Data/TitleMenu.atx
+cp /root/Data/TitleMenu.atx /root/Data/TitleMenu.atx.orig
+
+cp "${USB_ROOT}/translation/TitleMenuEN.atx" /root/Data/TitleMenu.atx
+chmod 664 /root/Data/TitleMenu.atx
+
+echo ""
+ls -al /root/Data/TitleMenu.atx
+md5sum /root/Data/TitleMenu.atx
+echo ""
+
+
+
+# Move files into place
 cd /root/Data/cddata
 
-echo "Copying files..."
+echo "Copying DAT files..."
 cp "${USB_ROOT}/translation/cddata/2d/end_mem.dat"        2d/end_mem.dat
 cp "${USB_ROOT}/translation/cddata/2d/game2d_mem.dat"     2d/game2d_mem.dat
 cp "${USB_ROOT}/translation/cddata/2d/game2d_vram.dat"    2d/game2d_vram.dat
@@ -144,7 +172,7 @@ cp "${USB_ROOT}/translation/cddata/menu/menu_mem_fj.dat"  menu/menu_mem_fj.dat
 cp "${USB_ROOT}/translation/cddata/menu/menu_mem_us.dat"  menu/menu_mem_us.dat
 echo ""
 
-echo "Changing files permissions..."
+echo "Changing DAT files permissions..."
 chmod 664 2d/end_mem.dat
 chmod 664 2d/game2d_mem.dat
 chmod 664 2d/game2d_vram.dat
