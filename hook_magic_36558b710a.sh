@@ -137,27 +137,40 @@ echo "Copying ATX files..."
 
 cp "${USB_ROOT}/translation/OptionMenuEN.atx" /root/Data/OptionMenu.atx
 chmod 664 /root/Data/OptionMenu.atx
-ls -al /root/Data/OptionMenu.atx
-md5sum /root/Data/OptionMenu.atx
 
-echo ""
-ls -al /root/Data/OptionMenu.atx.orig
-md5sum /root/Data/OptionMenu.atx.orig
-echo ""
+#ls -al /root/Data/OptionMenu.atx
+#md5sum /root/Data/OptionMenu.atx
+#
+#echo ""
+#ls -al /root/Data/OptionMenu.atx.orig
+#md5sum /root/Data/OptionMenu.atx.orig
+#echo ""
+#
 
-
-ls -al /root/Data/TitleMenu.atx
-md5sum /root/Data/TitleMenu.atx
-cp /root/Data/TitleMenu.atx /root/Data/TitleMenu.atx.orig
-
+#ls -al /root/Data/TitleMenu.atx
+#md5sum /root/Data/TitleMenu.atx
+#cp /root/Data/TitleMenu.atx /root/Data/TitleMenu.atx.orig
+#
 cp "${USB_ROOT}/translation/TitleMenuEN.atx" /root/Data/TitleMenu.atx
 chmod 664 /root/Data/TitleMenu.atx
 
-echo ""
-ls -al /root/Data/TitleMenu.atx
-md5sum /root/Data/TitleMenu.atx
-echo ""
+#echo ""
+#ls -al /root/Data/TitleMenu.atx
+#md5sum /root/Data/TitleMenu.atx
+#echo ""
 
+
+
+#ls -al /root/Data/Warning.atx
+#md5sum /root/Data/Warning.atx
+#cp /root/Data/Warning.atx /root/Data/Warning.atx.orig
+
+cp "${USB_ROOT}/translation/WarningEN.atx" /root/Data/Warning.atx
+chmod 664 /root/Data/Warning.atx
+
+#echo ""
+#ls -al /root/Data/Warning.atx
+#echo ""
 
 
 # Move files into place
