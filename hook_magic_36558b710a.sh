@@ -16,10 +16,12 @@ copy_atx() {
   ORIGINAL="/root/Data/${BASENAME}.atx.orig"
   FILEPATH="/root/Data/${BASENAME}.atx"
   if [ ! -f ${ORIGINAL} ]; then
+    echo "backup ${FILEPATH} to ${ORIGINAL}"
     ls -al ${FILEPATH}
     md5sum ${FILEPATH}
     mv ${FILEPATH} ${ORIGINAL}
   fi
+  echo "Copying from USB to ${FILEPATH}"
   cp "${USB_ROOT}/translation/${BASENAME}.atx" ${FILEPATH}
   chmod 664 ${FILEPATH}
   echo ""
@@ -31,10 +33,12 @@ copy_dat() {
   ORIGINAL="/root/Data/cddata/${FOLDER}/${BASENAME}.dat.orig"
   FILEPATH="/root/Data/cddata/${FOLDER}/${BASENAME}.dat"
   if [ ! -f ${ORIGINAL} ]; then
+    echo "backup ${FILEPATH} to ${ORIGINAL}"
     ls -al ${FILEPATH}
     md5sum ${FILEPATH}
     mv ${FILEPATH} ${ORIGINAL}
   fi
+  echo "Copying from USB to ${FILEPATH}"
   cp "${USB_ROOT}/translation/cddata/${FOLDER}/${BASENAME}.dat" ${FILEPATH}
   chmod 664 ${FILEPATH}
   chown 1000:1000 ${FILEPATH}
@@ -147,7 +151,8 @@ if [ -f "${USB_ROOT}/revert_translation" ]; then
     exit
 fi
 
-# rename orig extension to dat.orig in cddata
+# Rename orig extension to dat.orig in cddata
+echo "Renaming orig extension to dat.orig in cddata"
 find /root/Data/cddata -name '*.orig' ! -name '*.dat.orig' -exec rename -v 's/\.orig$/\.dat.orig/i' {} \;
 
 # Move files into place
