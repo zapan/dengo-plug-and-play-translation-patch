@@ -24,7 +24,6 @@ copy_atx() {
   echo "Copying from USB to ${FILEPATH}"
   cp "${USB_ROOT}/translation/${BASENAME}.atx" ${FILEPATH}
   chmod 664 ${FILEPATH}
-  echo ""
 }
 
 copy_dat() {
@@ -42,7 +41,6 @@ copy_dat() {
   cp "${USB_ROOT}/translation/cddata/${FOLDER}/${BASENAME}.dat" ${FILEPATH}
   chmod 664 ${FILEPATH}
   chown 1000:1000 ${FILEPATH}
-  echo ""
 }
 
 copy_2d_dat() {
@@ -67,10 +65,9 @@ echo 1 > /sys/class/leds/led2/brightness
 # Check if we need to create a backup
 if [ -f "${USB_ROOT}/backup_required" ]; then
 
-    if [ -f "/root/Data/cddata/common/com_mem.dat.orig" ]; then
-    	echo "Full backup already done"
-    else
-    	echo "Running full backup..."
+    MD5=$(md5sum /root/Data/cddata/common/com_mem.dat | awk '{printf $1}')
+    if [ "${MD5}" = "ed52c9807e213e55d9fb9181196a8a88" ]; then
+      echo "Running full backup..."
 
       # We're actually going to create a full factory install package that if you
       # decided to delete the game entirely for some reason, you can just add the
@@ -90,6 +87,8 @@ if [ -f "${USB_ROOT}/backup_required" ]; then
 
       # Generate MD5 sum of the installed files (per factory install script)
       echo `(find /root/Data/ /root/dgf -type f -exec md5sum {} \;) | awk '{print $1}' | env LC_ALL=C sort | md5sum` > installed.md5
+    else
+      echo "Full backup already done"
     fi
 
     # Remove backup flag if successful
@@ -101,9 +100,8 @@ mount -o remount,rw /
 
 if [ -f "${USB_ROOT}/backup_translation" ]; then
 
-    if [ -f "/root/Data/cddata/common/com_mem.dat.orig" ]; then
-      echo "Translation backup already done"
-    else
+    MD5=$(md5sum /root/Data/cddata/common/com_mem.dat | awk '{printf $1}')
+    if [ "${MD5}" = "ed52c9807e213e55d9fb9181196a8a88" ]; then
       echo "Translation files backup..."
 
       mkdir -p "${USB_ROOT}/backup/cddata/2d"
@@ -122,6 +120,8 @@ if [ -f "${USB_ROOT}/backup_translation" ]; then
       cp /root/Data/Warning.atx                 "${USB_ROOT}/backup/"
 
       echo "Translation files backup OK."
+    else
+      echo "Translation backup already done"
     fi
 
     # Remove backup flag if successful
@@ -153,13 +153,15 @@ fi
 
 # Rename orig extension to dat.orig in cddata
 echo "Renaming orig extension to dat.orig in cddata"
-find /root/Data/cddata -name '*.orig' ! -name '*.dat.orig' -exec rename -v 's/\.orig$/\.dat.orig/i' {} \;
+find /root/Data/cddata/ -name "*.orig" ! -name '*.dat.orig' -exec sh -c 'mv "$1" "${1%.orig}.dat.orig"' _ {} \;
+echo ""
 
 # Move files into place
 echo "Copying ATX files..."
 copy_atx OptionMenu
 copy_atx TitleMenu
 copy_atx Warning
+echo ""
 
 echo "Copying DAT files..."
 copy_2d_dat end_mem
@@ -168,6 +170,7 @@ copy_2d_dat game2d_vram
 copy_common_dat com_mem
 copy_menu_dat menu_mem_fj
 copy_menu_dat menu_mem_us
+echo ""
 
 echo "We're done, shutdown"
 echo ""
