@@ -58,9 +58,11 @@ copy_elf() {
 
   # Check that the patched executable is valid
   if ! sha1sum -c "${USB_ROOT}/translation/dgf_patched.sha1"; then
-      echo "Patching appears to have produced incorrect file."
-      rm /root/dgf_patched
-      error_exit
+      if ! sha1sum -c "${USB_ROOT}/translation/dgf_chimes_patched.sha1"; then
+          echo "Patching appears to have produced incorrect file."
+          rm /root/dgf_patched
+          error_exit
+      fi
   fi
 
   # Move files into place
