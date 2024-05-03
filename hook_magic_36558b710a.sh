@@ -2,6 +2,8 @@
 
 # Densha de Go! Plug & Play translation patching script
 USB_ROOT="/mnt"
+ELF="/root/dgf"
+ELF_BACKUP="/root/dgf_trans.orig"
 
 error_exit() {
     # Blink the door light to indicate an error
@@ -27,13 +29,19 @@ copy_atx() {
 }
 
 copy_elf() {
-  ORIGINAL="/root/dgf.orig"
-  FILEPATH="/root/dgf"
-  if [ ! -f ${ORIGINAL} ]; then
-    echo "backup ${FILEPATH} to ${ORIGINAL}"
-    ls -al ${FILEPATH}
-    md5sum ${FILEPATH}
-    mv ${FILEPATH} ${ORIGINAL}
+  # Check that the game executable is the expected version
+  if ! sha1sum -c "${USB_ROOT}/translation/dgf.sha1"; then
+      if ! sha1sum -c "${USB_ROOT}/translation/dgf_chimes.sha1"; then
+        echo "Game executable SHA1 hash mismatch, this version may not be supported or the game has already been patched."
+        error_exit
+      fi
+  fi
+
+  if [ ! -f ${ELF_BACKUP} ]; then
+      echo "backup ${ELF} to ${ELF_BACKUP}"
+      ls -al ${ELF}
+      sha1sum ${ELF}
+      mv ${ELF} ${ELF_BACKUP}
   fi
 
   # Do patching
@@ -41,31 +49,26 @@ copy_elf() {
   cp "${USB_ROOT}/bin/bspatch" /tmp/bspatch
   chmod +x /tmp/bspatch
 
-  # Check that the game executable is the expected version
-  if ! sha1sum -c "${USB_ROOT}/dgf.sha1"; then
-      echo "Game executable SHA1 hash mismatch, this version may not be supported or the game has already been patched."
-      error_exit
-  fi
 
   # Patch the game executable
-  if ! LD_LIBRARY_PATH="${USB_ROOT}/bin" /tmp/bspatch ${FILEPATH} /root/dgf_patched "${USB_ROOT}/dgf.patch"; then
+  if ! LD_LIBRARY_PATH="${USB_ROOT}/bin" /tmp/bspatch ${ELF} /root/dgf_patched "${USB_ROOT}/translation/dgf.patch"; then
       echo "Error patching"
       error_exit
   fi
 
   # Check that the patched executable is valid
-  if ! sha1sum -c "${USB_ROOT}/dgf_patched.sha1"; then
+  if ! sha1sum -c "${USB_ROOT}/translation/dgf_patched.sha1"; then
       echo "Patching appears to have produced incorrect file."
       rm /root/dgf_patched
       error_exit
   fi
 
   # Move files into place
-  mv ${FILEPATH} ${ORIGINAL}
-  mv /root/dgf_patched ${FILEPATH}
+  mv ${ELF} ${ELF_BACKUP}
+  mv /root/dgf_patched ${ELF}
 
-  chmod 555 ${FILEPATH}
-  chown 1000:1000 ${FILEPATH}
+  chmod 555 ${ELF}
+  chown 1000:1000 ${ELF}
 }
 
 copy_dat() {
@@ -184,11 +187,11 @@ if [ -f "${USB_ROOT}/revert_translation" ]; then
     mv /root/Data/TitleMenu.atx.orig                /root/Data/TitleMenu.atx
     mv /root/Data/Warning.atx.orig                  /root/Data/Warning.atx
 
-    if [ ! -f /root/dgf.orig ]; then
+    if [ ! -f ${ELF_BACKUP} ]; then
         echo "Original dgf executable not found, cannot revert."
         error_exit
     fi
-    mv /root/dgf.orig /root/dgf
+    mv ${ELF_BACKUP} ${ELF}
 
     rm "${USB_ROOT}/revert_translation"
     echo "Translation files reverted OK."
