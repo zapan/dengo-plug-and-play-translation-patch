@@ -26,6 +26,48 @@ copy_atx() {
   chmod 664 ${FILEPATH}
 }
 
+copy_elf() {
+  ORIGINAL="/root/dgf.orig"
+  FILEPATH="/root/dgf"
+  if [ ! -f ${ORIGINAL} ]; then
+    echo "backup ${FILEPATH} to ${ORIGINAL}"
+    ls -al ${FILEPATH}
+    md5sum ${FILEPATH}
+    mv ${FILEPATH} ${ORIGINAL}
+  fi
+
+  # Do patching
+  # Copy bspatch to /tmp and apply execute permission
+  cp "${USB_ROOT}/bin/bspatch" /tmp/bspatch
+  chmod +x /tmp/bspatch
+
+  # Check that the game executable is the expected version
+  if ! sha1sum -c "${USB_ROOT}/dgf.sha1"; then
+      echo "Game executable SHA1 hash mismatch, this version may not be supported or the game has already been patched."
+      error_exit
+  fi
+
+  # Patch the game executable
+  if ! LD_LIBRARY_PATH="${USB_ROOT}/bin" /tmp/bspatch ${FILEPATH} /root/dgf_patched "${USB_ROOT}/dgf.patch"; then
+      echo "Error patching"
+      error_exit
+  fi
+
+  # Check that the patched executable is valid
+  if ! sha1sum -c "${USB_ROOT}/dgf_patched.sha1"; then
+      echo "Patching appears to have produced incorrect file."
+      rm /root/dgf_patched
+      error_exit
+  fi
+
+  # Move files into place
+  mv ${FILEPATH} ${ORIGINAL}
+  mv /root/dgf_patched ${FILEPATH}
+
+  chmod 555 ${FILEPATH}
+  chown 1000:1000 ${FILEPATH}
+}
+
 copy_dat() {
   BASENAME=$1
   FOLDER=$2
@@ -129,7 +171,6 @@ if [ -f "${USB_ROOT}/backup_translation" ]; then
     echo ""
 fi
 
-
 if [ -f "${USB_ROOT}/revert_translation" ]; then
     echo "Reverting translation files..."
     mv /root/Data/cddata/2d/end_mem.dat.orig        /root/Data/cddata/2d/end_mem.dat
@@ -142,6 +183,12 @@ if [ -f "${USB_ROOT}/revert_translation" ]; then
     mv /root/Data/OptionMenu.atx.orig               /root/Data/OptionMenu.atx
     mv /root/Data/TitleMenu.atx.orig                /root/Data/TitleMenu.atx
     mv /root/Data/Warning.atx.orig                  /root/Data/Warning.atx
+
+    if [ ! -f /root/dgf.orig ]; then
+        echo "Original dgf executable not found, cannot revert."
+        error_exit
+    fi
+    mv /root/dgf.orig /root/dgf
 
     rm "${USB_ROOT}/revert_translation"
     echo "Translation files reverted OK."
@@ -171,6 +218,9 @@ copy_common_dat com_mem
 copy_menu_dat menu_mem_fj
 copy_menu_dat menu_mem_us
 echo ""
+
+echo "Copying ELF file..."
+copy_elf
 
 echo "We're done, shutdown"
 echo ""
