@@ -39,7 +39,7 @@ Usage
    files, then patch the game data files. While this is in progress, the door light will light. When it is complete, the unit
    will shut down and you can unplug the USB hub and plug in a regular USB
    power cable. If there is an error during processing, the door light will
-   flash. If an error occurs, you can find a log at `log.txt` on the USB drive.
+   flash. You can find a log at `log.txt` on the USB drive.
 6. If the patch was successful, you should now be able to watch almost the entire game in English.
 
 Note: depending on the speed of your USB drive, the backup stage may take a
