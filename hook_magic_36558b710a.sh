@@ -25,19 +25,19 @@ error_exit() {
 }
 
 patch_elf() {
-  CHKRES=$(sha1sum -c "${USB_ROOT}/translation/dgf.sha1" 2> /dev/null | grep OK)
-  if [ -n "${CHKRES}" ]; then
-      echo "dgf SHA1 Correct"
-  else
-      echo "Game executable SHA1 hash mismatch, this version may not be supported or the game has already been patched."
-      error_exit
-  fi
 
   if [ ! -f ${ELF_BACKUP} ]; then
-      echo "Backup ${ELF} to ${ELF_BACKUP}"
-      ls -al ${ELF}
-      sha1sum ${ELF}
-      cp ${ELF} ${ELF_BACKUP}
+      CHKRES=$(sha1sum -c "${USB_ROOT}/translation/dgf.sha1" 2> /dev/null | grep OK)
+      if [ -n "${CHKRES}" ]; then
+          echo "dgf SHA1 Correct"
+          echo "Backup ${ELF} to ${ELF_BACKUP}"
+          ls -al ${ELF}
+          sha1sum ${ELF}
+          mv ${ELF} ${ELF_BACKUP}
+      else
+          echo "Game executable SHA1 hash mismatch, this version may not be supported or the game has already been patched."
+          error_exit
+      fi
   fi
 
   # Do patching
@@ -46,7 +46,7 @@ patch_elf() {
   chmod +x /tmp/bspatch
 
   # Patch the game executable
-  if ! LD_LIBRARY_PATH="${USB_ROOT}/bin" /tmp/bspatch ${ELF} /root/dgf_patched "${USB_ROOT}/translation/dgf.patch"; then
+  if ! LD_LIBRARY_PATH="${USB_ROOT}/bin" /tmp/bspatch ${ELF_BACKUP} /root/dgf_patched "${USB_ROOT}/translation/dgf.patch"; then
       echo "Error patching"
       error_exit
   fi
@@ -178,7 +178,7 @@ if [ -f "${USB_ROOT}/backup_translation" ]; then
       cp /root/Data/TitleMenu.atx               "${USB_ROOT}/backup/"
       cp /root/Data/Warning.atx                 "${USB_ROOT}/backup/"
 
-      cp ${ELF}                                 "${USB_ROOT}/backup/"
+      cp ${ELF_BACKUP}                          "${USB_ROOT}/backup/dgf"
 
       echo "Translation files backup OK."
     else
