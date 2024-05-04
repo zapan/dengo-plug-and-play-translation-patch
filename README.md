@@ -1,7 +1,17 @@
 Densha de Go! Plug & Play Translation Patcher
 =======================================
 
-This patch translates the menus and game elements in Densha de Go! Plug & Play from Japanese to English. 
+This patch translates tutorials, menus, and game elements in Densha de Go! Plug & Play from Japanese to English. 
+
+Release Notes
+------------
+- All tutorials translated.
+- All menu elements translated.
+- All HUD elements translated.
+
+Roadmap
+------------
+- End credits.
 
 Requirements
 ------------
