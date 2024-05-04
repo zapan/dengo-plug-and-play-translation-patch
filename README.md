@@ -19,7 +19,7 @@ Usage
    partition table present, and the FAT32 partition is the first one, as the
    factory script specifically looks at the first partition. Please search
    online if you need instructions on how to do this.
-2. Copy all of the files in this repository (including the `translation` folder) into the root of your USB drive. Eject the USB
+2. Copy all the files in this repository (including the `translation` and `bin` folder) into the root of your USB drive. Eject the USB
    drive from your computer after it is finished copying.
 3. Plug the USB drive into your USB OTG hub, then plug the hub into the micro
    USB port on the back of your Densha de Go! Plug & Play. Plug the power
@@ -37,7 +37,7 @@ long time. Expect it to take 30-60 minutes to complete. Once it has been
 completed, you can rerun the patching process without going through backup
 again if necessary. 
 
-Please safekeep the backup files inside `backup` folder: `dgtyp3zzzz.tar.gz`,
+Please safe keep the backup files inside `backup` folder: `dgtyp3zzzz.tar.gz`,
 `dgtyp3zzzz.tar.gz.md5`, `installed.md5` and `cddata` folder (it contains your original DAT files)
 
 
