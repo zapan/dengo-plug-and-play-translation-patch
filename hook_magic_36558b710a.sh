@@ -1,16 +1,73 @@
 #!/bin/sh
 
 # Densha de Go! Plug & Play translation patching script
+
 USB_ROOT="/mnt"
 ELF="/root/dgf"
 ELF_BACKUP="/root/dgf_trans.orig"
 
+blink_led(){
+    count=30
+    # shellcheck disable=SC2034
+    for i in $(seq $count); do
+      echo 1 > /sys/class/leds/led2/brightness; sleep 0.1
+      echo 0 > /sys/class/leds/led2/brightness; sleep 0.1
+    done
+}
+
 error_exit() {
     # Blink the door light to indicate an error
-    echo timer > /sys/class/leds/led2/trigger
-    echo 100 > /sys/class/leds/led2/delay_on
-    echo 100 > /sys/class/leds/led2/delay_off
+    echo -n none > /sys/class/leds/led2/trigger
+    blink_led
+    echo "error_exit"
+    poweroff
     exit 1
+}
+
+patch_elf() {
+  if [ ! -f ${ELF_BACKUP} ]; then
+      CHKRES=$(sha1sum -c "${USB_ROOT}/translation/dgf.sha1" 2> /dev/null | grep OK)
+      if [ -n "${CHKRES}" ]; then
+          echo "dgf SHA1 Correct"
+      else
+          echo "Game executable SHA1 hash mismatch, this version may not be supported or the game has already been patched."
+          error_exit
+      fi
+
+      echo "Backup ${ELF} to ${ELF_BACKUP}"
+      ls -al ${ELF}
+      sha1sum ${ELF}
+      cp ${ELF} ${ELF_BACKUP}
+  fi
+
+  # Do patching
+  # Copy bspatch to /tmp and apply execute permission
+  cp "${USB_ROOT}/bin/bspatch" /tmp/bspatch
+  chmod +x /tmp/bspatch
+
+  # Patch the game executable
+  if ! LD_LIBRARY_PATH="${USB_ROOT}/bin" /tmp/bspatch ${ELF} /root/dgf_patched "${USB_ROOT}/translation/dgf.patch"; then
+      echo "Error patching"
+      error_exit
+  fi
+
+  echo "Check that the patched executable is valid"
+  # Check that the patched executable is valid
+  CHKRES=$(sha1sum -c "${USB_ROOT}/translation/dgf_patched.sha1" 2> /dev/null | grep OK)
+  if [ -n "${CHKRES}" ]; then
+      echo "dgf_patched SHA1 Correct"
+      sha1sum /root/dgf_patched
+  else
+      echo "Patching appears to have produced incorrect file."
+      rm /root/dgf_patched
+      error_exit
+  fi
+
+  mv /root/dgf_patched ${ELF}
+  chmod 555 ${ELF}
+  chown 1000:1000 ${ELF}
+
+  echo "Elf Patching OK"
 }
 
 copy_atx() {
@@ -26,51 +83,6 @@ copy_atx() {
   echo "Copying from USB to ${FILEPATH}"
   cp "${USB_ROOT}/translation/${BASENAME}.atx" ${FILEPATH}
   chmod 664 ${FILEPATH}
-}
-
-copy_elf() {
-  # Check that the game executable is the expected version
-  if ! sha1sum -c "${USB_ROOT}/translation/dgf.sha1"; then
-      if ! sha1sum -c "${USB_ROOT}/translation/dgf_chimes.sha1"; then
-        echo "Game executable SHA1 hash mismatch, this version may not be supported or the game has already been patched."
-        error_exit
-      fi
-  fi
-
-  if [ ! -f ${ELF_BACKUP} ]; then
-      echo "backup ${ELF} to ${ELF_BACKUP}"
-      ls -al ${ELF}
-      sha1sum ${ELF}
-      mv ${ELF} ${ELF_BACKUP}
-  fi
-
-  # Do patching
-  # Copy bspatch to /tmp and apply execute permission
-  cp "${USB_ROOT}/bin/bspatch" /tmp/bspatch
-  chmod +x /tmp/bspatch
-
-
-  # Patch the game executable
-  if ! LD_LIBRARY_PATH="${USB_ROOT}/bin" /tmp/bspatch ${ELF} /root/dgf_patched "${USB_ROOT}/translation/dgf.patch"; then
-      echo "Error patching"
-      error_exit
-  fi
-
-  # Check that the patched executable is valid
-  if ! sha1sum -c "${USB_ROOT}/translation/dgf_patched.sha1"; then
-      if ! sha1sum -c "${USB_ROOT}/translation/dgf_chimes_patched.sha1"; then
-          echo "Patching appears to have produced incorrect file."
-          rm /root/dgf_patched
-          error_exit
-      fi
-  fi
-
-  # Move files into place
-  mv ${ELF} ${ELF_BACKUP}
-  mv /root/dgf_patched ${ELF}
-
-  chmod 555 ${ELF}
-  chown 1000:1000 ${ELF}
 }
 
 copy_dat() {
@@ -166,6 +178,8 @@ if [ -f "${USB_ROOT}/backup_translation" ]; then
       cp /root/Data/TitleMenu.atx               "${USB_ROOT}/backup/"
       cp /root/Data/Warning.atx                 "${USB_ROOT}/backup/"
 
+      cp ${ELF}                                 "${USB_ROOT}/backup/"
+
       echo "Translation files backup OK."
     else
       echo "Translation backup already done"
@@ -224,8 +238,8 @@ copy_menu_dat menu_mem_fj
 copy_menu_dat menu_mem_us
 echo ""
 
-echo "Copying ELF file..."
-copy_elf
+echo "Patching ELF file..."
+patch_elf
 
 echo "We're done, shutdown"
 echo ""
