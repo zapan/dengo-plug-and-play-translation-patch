@@ -25,15 +25,15 @@ error_exit() {
 }
 
 patch_elf() {
-  if [ ! -f ${ELF_BACKUP} ]; then
-      CHKRES=$(sha1sum -c "${USB_ROOT}/translation/dgf.sha1" 2> /dev/null | grep OK)
-      if [ -n "${CHKRES}" ]; then
-          echo "dgf SHA1 Correct"
-      else
-          echo "Game executable SHA1 hash mismatch, this version may not be supported or the game has already been patched."
-          error_exit
-      fi
+  CHKRES=$(sha1sum -c "${USB_ROOT}/translation/dgf.sha1" 2> /dev/null | grep OK)
+  if [ -n "${CHKRES}" ]; then
+      echo "dgf SHA1 Correct"
+  else
+      echo "Game executable SHA1 hash mismatch, this version may not be supported or the game has already been patched."
+      error_exit
+  fi
 
+  if [ ! -f ${ELF_BACKUP} ]; then
       echo "Backup ${ELF} to ${ELF_BACKUP}"
       ls -al ${ELF}
       sha1sum ${ELF}
