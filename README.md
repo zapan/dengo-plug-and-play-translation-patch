@@ -11,7 +11,7 @@ Release Notes
 
 Roadmap
 ------------
-- End credits.
+- Translate end credits video.
 
 Requirements
 ------------
